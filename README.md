@@ -53,3 +53,4 @@ El proyecto sigue una estructura modular, dividida en los siguientes componentes
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia [MIT](https://opensource.org/licenses/MIT).
+  
