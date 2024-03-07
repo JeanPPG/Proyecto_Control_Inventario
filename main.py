@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
-
 from PIL import Image, ImageTk
-
+from inventario.inventario import GestionInventario
 
 class MainApplication(tk.Tk):
     def __init__(self):
@@ -109,17 +108,23 @@ class MainApplication(tk.Tk):
         username = self.user_entry.get()
         password = self.password_entry.get()
 
-        # Simplemente como ejemplo, verificar si el usuario y la contraseña son "admin"
-        if username == "admin" and password == "admin":
+        # Credenciales temporales para pruebas
+        correct_username = "admin"
+        correct_password = "admin"
+
+        # Verificar si las credenciales ingresadas coinciden con las credenciales temporales
+        if username == correct_username and password == correct_password:
             messagebox.showinfo("Inicio de Sesión", "Inicio de sesión exitoso!")
             self.login_attempts = 0
+            # Si la autenticación es exitosa, muestra la interfaz de gestión de inventario
+            self.show_inventario()
         else:
             self.login_attempts += 1
 
             # Si se exceden los 3 intentos, mostrar un mensaje y volver al menú principal
             if self.login_attempts >= 3:
                 messagebox.showerror("Inicio de Sesión",
-                                     "Exceso de intentos de inicio de sesión. Volviendo al menú principal.")
+                                    "Exceso de intentos de inicio de sesión. Volviendo al menú principal.")
                 self.show_main_menu()
             else:
                 messagebox.showerror("Inicio de Sesión", "Error en el inicio de sesión. Por favor, inténtelo de nuevo.")
@@ -193,6 +198,13 @@ class MainApplication(tk.Tk):
         message = f"Usuario creado con éxito!\n\nNombre: {name}\nApellido: {last_name}\nID: {user_id}\nTeléfono: {phone}\nUsuario: {username}\nContraseña: {password}"
         messagebox.showinfo("Crear Usuario", message)
 
+    def show_inventario(self):
+        # Ocultar la ventana principal y mostrar la ventana de gestión de inventario
+        self.withdraw()
+        inventario_window = GestionInventario(self)
+        inventario_window.mainloop()
+        # Cuando se cierre la ventana de gestión de inventario, mostrar nuevamente la ventana principal
+        self.deiconify()
 
 if __name__ == "__main__":
     app = MainApplication()
