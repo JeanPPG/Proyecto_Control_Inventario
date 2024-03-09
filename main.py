@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from PIL import Image, ImageTk
 from inventario.inventario import GestionInventario
+import psycopg2
 
 class MainApplication(tk.Tk):
     def __init__(self):
@@ -104,30 +105,68 @@ class MainApplication(tk.Tk):
         back_button.pack()
 
     def login(self):
-        # Verificar las credenciales
+        # Verificar las credenciales con la base de datos
         username = self.user_entry.get()
         password = self.password_entry.get()
 
-        # Credenciales temporales para pruebas
-        correct_username = "admin"
-        correct_password = "admin"
-
-        # Verificar si las credenciales ingresadas coinciden con las credenciales temporales
-        if username == correct_username and password == correct_password:
+        # Realizar la autenticación
+        if self.authenticate_user(username, password):
             messagebox.showinfo("Inicio de Sesión", "Inicio de sesión exitoso!")
             self.login_attempts = 0
-            # Si la autenticación es exitosa, muestra la interfaz de gestión de inventario
             self.show_inventario()
         else:
             self.login_attempts += 1
 
-            # Si se exceden los 3 intentos, mostrar un mensaje y volver al menú principal
             if self.login_attempts >= 3:
                 messagebox.showerror("Inicio de Sesión",
                                     "Exceso de intentos de inicio de sesión. Volviendo al menú principal.")
                 self.show_main_menu()
             else:
                 messagebox.showerror("Inicio de Sesión", "Error en el inicio de sesión. Por favor, inténtelo de nuevo.")
+
+    def authenticate_user(self, username, password):
+        # Establecer la conexión a la base de datos
+        connection = self.connect_to_database()
+        if connection:
+            try:
+                cursor = connection.cursor()
+
+                # Consultar la base de datos para verificar las credenciales
+                cursor.execute("SELECT * FROM usuarios WHERE username = %s AND password = %s", (username, password))
+                user = cursor.fetchone()
+
+                cursor.close()
+                connection.close()
+
+                if user:
+                    return True
+                else:
+                    return False
+            except psycopg2.Error as e:
+                print("Error al autenticar al usuario:", e)
+                messagebox.showerror("Error", "Error al autenticar al usuario.")
+                return False
+        else:
+            return False
+
+    def connect_to_database(self):
+        # Datos de conexión a la base de datos
+        database_info = {
+            "database": "control_inventario",
+            "user": "postgres",
+            "password": "admin27",
+            "host": "localhost",
+            "port": "5432"
+        }
+
+        # Intentar establecer la conexión
+        try:
+            connection = psycopg2.connect(**database_info)
+            return connection
+        except psycopg2.Error as e:
+            print("Error al conectar a PostgreSQL:", e)
+            messagebox.showerror("Error", "Error al conectar a la base de datos.")
+            return None
 
     def show_create_user_form(self):
         if self.current_frame:
@@ -193,17 +232,41 @@ class MainApplication(tk.Tk):
         username = self.user_entry.get()
         password = self.password_entry.get()
 
-        # Aquí podrías guardar los datos del nuevo usuario en una base de datos o hacer lo que necesites con ellos
-        # Por ahora, simplemente mostraremos un mensaje con la información del usuario creado
-        message = f"Usuario creado con éxito!\n\nNombre: {name}\nApellido: {last_name}\nID: {user_id}\nTeléfono: {phone}\nUsuario: {username}\nContraseña: {password}"
-        messagebox.showinfo("Crear Usuario", message)
+        # Insertar el nuevo usuario en la base de datos
+        connection = self.connect_to_database()
+        if connection:
+            try:
+                cursor = connection.cursor()
+
+                # Verificar si ya existe un usuario con el mismo nombre de usuario
+                cursor.execute("SELECT * FROM usuarios WHERE username = %s", (username,))
+                existing_user = cursor.fetchone()
+
+                if existing_user:
+                    messagebox.showerror("Error", "Ya existe un usuario con este nombre de usuario.")
+                else:
+                    # Determinar el rol del usuario (no administrador)
+                    is_admin = False
+
+                    cursor.execute("INSERT INTO usuarios (nombre, apellido, id_usuario, telefono, username, password, es_administrador) "
+                                   "VALUES (%s, %s, %s, %s, %s, %s, %s)", (name, last_name, user_id, phone, username, password, is_admin))
+
+                    connection.commit()
+
+                    messagebox.showinfo("Crear Usuario", "Usuario creado con éxito!")
+
+                cursor.close()
+                connection.close()
+            except psycopg2.Error as e:
+                print("Error al crear usuario:", e)
+                messagebox.showerror("Error", "Error al crear usuario.")
+        else:
+            print("Error: No se pudo conectar a la base de datos.")
 
     def show_inventario(self):
-        # Ocultar la ventana principal y mostrar la ventana de gestión de inventario
         self.withdraw()
         inventario_window = GestionInventario(self)
         inventario_window.mainloop()
-        # Cuando se cierre la ventana de gestión de inventario, mostrar nuevamente la ventana principal
         self.deiconify()
 
 if __name__ == "__main__":
