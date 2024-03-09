@@ -26,10 +26,7 @@ La falta de un sistema automatizado ha generado complicaciones operativas, provo
 El proyecto sigue una estructura modular, dividida en los siguientes componentes:
 
 - **`inventario/`**
-- **`ventas/`**
-- **`pedidos/`**
 - **`api/`**
-- **`tests/`**
 - **`requirements.txt`**
 - **`main.py`**
 
