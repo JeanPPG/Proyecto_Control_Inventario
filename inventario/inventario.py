@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from inventario.registro import RegistroVentana
+from inventario.actualizacion import ActualizacionVentana
+from inventario.lista import ListaVentana
+from inventario.seguimiento import SeguimientoVentana
 
 class GestionInventario(tk.Toplevel):
     def __init__(self, parent):
@@ -14,27 +18,29 @@ class GestionInventario(tk.Toplevel):
         self.create_widgets()
 
     def create_widgets(self):
-        # Frame para organizar los botones principales
+        # Botón de cerrar sesión arriba a la izquierda
+        logout_button = ttk.Button(self, text="Cerrar Sesión", command=self.logout)
+        logout_button.pack(side="top", padx=10, pady=10, anchor="nw")
+
+        # Etiqueta de título
+        label = tk.Label(self, text="Bienvenido a la Gestión de Inventario", font=("Arial", 16))
+        label.pack(pady=20)
+
+        # Botones de funcionalidad
         button_frame = tk.Frame(self)
         button_frame.pack(pady=20)
 
-        # Botón de cerrar sesión en la esquina superior izquierda
-        logout_button = ttk.Button(button_frame, text="Cerrar Sesión", command=self.logout)
-        logout_button.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+        registrar_button = ttk.Button(button_frame, text="Registrar", command=self.abrir_registro)
+        registrar_button.pack(side="top", padx=10, pady=10, fill="x")
 
-        # Botones principales para añadir, modificar y listar elementos
-        add_button = ttk.Button(button_frame, text="Añadir", command=self.add_item)
-        add_button.grid(row=0, column=1, padx=10, pady=10)
+        actualizar_button = ttk.Button(button_frame, text="Actualizar", command=self.abrir_actualizacion)
+        actualizar_button.pack(side="top", padx=10, pady=10, fill="x")
 
-        modify_button = ttk.Button(button_frame, text="Modificar", command=self.modify_item)
-        modify_button.grid(row=0, column=2, padx=10, pady=10)
+        listar_button = ttk.Button(button_frame, text="Listar", command=self.abrir_lista)
+        listar_button.pack(side="top", padx=10, pady=10, fill="x")
 
-        list_button = ttk.Button(button_frame, text="Listar", command=self.list_items)
-        list_button.grid(row=0, column=3, padx=10, pady=10)
-
-        # Etiqueta de bienvenida
-        label = tk.Label(self, text="Bienvenido a la Gestión de Inventario", font=("Arial", 16))
-        label.pack(pady=20)
+        seguimiento_button = ttk.Button(button_frame, text="Seguimiento", command=self.abrir_seguimiento)
+        seguimiento_button.pack(side="top", padx=10, pady=10, fill="x")
 
     def logout(self):
         self.destroy()
@@ -44,17 +50,25 @@ class GestionInventario(tk.Toplevel):
         if messagebox.askokcancel("Salir", "¿Estás seguro de que quieres salir?"):
             self.parent.destroy()
 
-    def add_item(self):
-        # Funcionalidad para añadir un elemento al inventario
-        messagebox.showinfo("Añadir", "Funcionalidad de añadir aún no implementada.")
+    def abrir_registro(self):
+        self.withdraw()  # Oculta la ventana actual
+        registro_ventana = RegistroVentana(self)
+        registro_ventana.mainloop()
 
-    def modify_item(self):
-        # Funcionalidad para modificar un elemento del inventario
-        messagebox.showinfo("Modificar", "Funcionalidad de modificar aún no implementada.")
+    def abrir_actualizacion(self):
+        self.withdraw()  # Oculta la ventana actual
+        actualizacion_ventana = ActualizacionVentana(self)
+        actualizacion_ventana.mainloop()
 
-    def list_items(self):
-        # Funcionalidad para listar los elementos del inventario
-        messagebox.showinfo("Listar", "Funcionalidad de listar aún no implementada.")
+    def abrir_lista(self):
+        self.withdraw()  # Oculta la ventana actual
+        lista_ventana = ListaVentana(self)
+        lista_ventana.mainloop()
+
+    def abrir_seguimiento(self):
+        self.withdraw()  # Oculta la ventana actual
+        seguimiento_ventana = SeguimientoVentana(self)
+        seguimiento_ventana.mainloop()
 
 if __name__ == "__main__":
     root = tk.Tk()
