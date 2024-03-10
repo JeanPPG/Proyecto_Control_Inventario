@@ -1,0 +1,3 @@
+tk
+Pillow
+psycopg2
