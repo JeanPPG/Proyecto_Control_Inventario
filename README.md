@@ -27,13 +27,13 @@ El proyecto sigue una estructura modular, dividida en los siguientes componentes
 
 - **`inventario/`**
 - **`api/`**
-- **`requirements.txt`**
+- **`requerimientos.txt`**
 - **`main.py`**
 
 ## ⚙️ Instalación y Ejecución
 
 1. Clona este repositorio en tu máquina local.
-2. Instala las dependencias del proyecto ejecutando `pip install -r requirements.txt`.
+2. Instala las dependencias del proyecto ejecutando `pip install -r requerimientos.txt`.
 3. Configura la base de datos PostgreSQL según sea necesario.
 4. Ejecuta la aplicación usando `python main.py`.
 
