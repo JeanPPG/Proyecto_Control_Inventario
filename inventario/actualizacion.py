@@ -5,7 +5,7 @@ from tkinter import messagebox
 class ActualizacionVentana(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Actualización de Elemento")
+        self.title("Actualización de Elementos")
         self.geometry("400x300")
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
