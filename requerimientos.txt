@@ -1,3 +1,5 @@
 tk
 Pillow
 psycopg2
+reportLab
+fpdf2

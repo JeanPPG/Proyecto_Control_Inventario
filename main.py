@@ -3,6 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from PIL import Image, ImageTk
 from inventario.inventario import GestionInventario
+from conexionDB import database
 import psycopg2
 
 class MainApplication(tk.Tk):
@@ -126,7 +127,7 @@ class MainApplication(tk.Tk):
 
     def authenticate_user(self, username, password):
         # Establecer la conexión a la base de datos
-        connection = self.connect_to_database()
+        connection = database.connect_to_database()
         if connection:
             try:
                 cursor = connection.cursor()
@@ -148,25 +149,6 @@ class MainApplication(tk.Tk):
                 return False
         else:
             return False
-
-    def connect_to_database(self):
-        # Datos de conexión a la base de datos
-        database_info = {
-            "database": "control_inventario",
-            "user": "postgres",
-            "password": "admin27",
-            "host": "localhost",
-            "port": "5432"
-        }
-
-        # Intentar establecer la conexión
-        try:
-            connection = psycopg2.connect(**database_info)
-            return connection
-        except psycopg2.Error as e:
-            print("Error al conectar a PostgreSQL:", e)
-            messagebox.showerror("Error", "Error al conectar a la base de datos.")
-            return None
 
     def show_create_user_form(self):
         if self.current_frame:
@@ -233,7 +215,7 @@ class MainApplication(tk.Tk):
         password = self.password_entry.get()
 
         # Insertar el nuevo usuario en la base de datos
-        connection = self.connect_to_database()
+        connection = database.connect_to_database()
         if connection:
             try:
                 cursor = connection.cursor()
