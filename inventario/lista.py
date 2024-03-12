@@ -33,6 +33,7 @@ class ListaVentana(tk.Toplevel):
         self.treeview.heading("Código", text="Código")
         self.treeview.heading("Cantidad", text="Cantidad")
         self.treeview.heading("Categoría", text="Categoría")
+        self.treeview.heading("Descripcion", text="Descripcion")
         self.treeview.pack(fill="both", expand=True)
 
         # Obtener los datos de la base de datos y cargarlos en el Treeview
@@ -45,7 +46,7 @@ class ListaVentana(tk.Toplevel):
                 cursor = connection.cursor()
 
                 # Consulta para seleccionar todos los registros de la tabla inventario
-                cursor.execute("SELECT nombre, codigo, cantidad, categoria FROM inventario")
+                cursor.execute("SELECT nombre, codigo, cantidad, categoria ,descripcion FROM inventario")
 
                 # Obtener todos los registros
                 rows = cursor.fetchall()
@@ -87,6 +88,8 @@ class ListaVentana(tk.Toplevel):
         pdf.cell(40, 10, "Código", 1, 0, "C", 1)
         pdf.cell(40, 10, "Cantidad", 1, 0, "C", 1)
         pdf.cell(80, 10, "Categoría", 1, 1, "C", 1)
+        pdf.cell(40, 10, "Descripcion", 1, 1, "C",1)
+
 
         for child in self.treeview.get_children():
             values = self.treeview.item(child)["values"]
