@@ -28,11 +28,12 @@ class ListaVentana(tk.Toplevel):
         pdf_button.pack(side="top", padx=10, pady=10, anchor="nw")
 
         # Crear el Treeview para mostrar la lista de productos
-        self.treeview = ttk.Treeview(self, columns=("Nombre", "Código", "Cantidad", "Categoría"), show="headings")
+        self.treeview = ttk.Treeview(self, columns=("Nombre", "Código", "Cantidad", "Categoría", "Descripción"), show="headings")
         self.treeview.heading("Nombre", text="Nombre")
         self.treeview.heading("Código", text="Código")
         self.treeview.heading("Cantidad", text="Cantidad")
         self.treeview.heading("Categoría", text="Categoría")
+        self.treeview.heading("Descripción", text="Descripción")
         self.treeview.pack(fill="both", expand=True)
 
         # Obtener los datos de la base de datos y cargarlos en el Treeview
@@ -45,7 +46,7 @@ class ListaVentana(tk.Toplevel):
                 cursor = connection.cursor()
 
                 # Consulta para seleccionar todos los registros de la tabla inventario
-                cursor.execute("SELECT nombre, codigo, cantidad, categoria FROM inventario")
+                cursor.execute("SELECT nombre, codigo, cantidad, categoria, descripcion FROM inventario")
 
                 # Obtener todos los registros
                 rows = cursor.fetchall()
@@ -86,7 +87,8 @@ class ListaVentana(tk.Toplevel):
         pdf.cell(40, 10, "Nombre", 1, 0, "C", 1)
         pdf.cell(40, 10, "Código", 1, 0, "C", 1)
         pdf.cell(40, 10, "Cantidad", 1, 0, "C", 1)
-        pdf.cell(80, 10, "Categoría", 1, 1, "C", 1)
+        pdf.cell(40, 10, "Categoría", 1, 0, "C", 1)
+        pdf.cell(80, 10, "Descripción", 1, 1, "C", 1)
 
         for child in self.treeview.get_children():
             values = self.treeview.item(child)["values"]

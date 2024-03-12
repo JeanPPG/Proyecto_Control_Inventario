@@ -8,7 +8,7 @@ class RegistroVentana(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Registro de Elemento")
-        self.geometry("400x500")
+        self.geometry("400x550")
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.parent = parent
@@ -46,7 +46,7 @@ class RegistroVentana(tk.Toplevel):
         self.quantity_entry.grid(row=5, column=1, padx=10, pady=5, sticky="we")
         self.quantity_entry.configure(validate="key", validatecommand=(self.register(self.validate_quantity), "%P"))
 
-        label_category = ttk.Label(card_frame, text="Categoria:", font=("Arial", 10))
+        label_category = ttk.Label(card_frame, text="Categoría:", font=("Arial", 10))
         label_category.grid(row=6, column=0, sticky="w", padx=10)
 
         self.category_combobox = ttk.Combobox(card_frame, values=["Quimicos", "Equipos", "Glassware", "Consumibles"],
@@ -54,8 +54,14 @@ class RegistroVentana(tk.Toplevel):
         self.category_combobox.grid(row=6, column=1, padx=10, pady=5, sticky="we")
         self.category_combobox.set("Seleccione la categoria")
 
+        label_description = ttk.Label(card_frame, text="Descripción:", font=("Arial", 10))
+        label_description.grid(row=7, column=0, sticky="w", padx=10)
+
+        self.description_entry = tk.Text(card_frame, font=("Arial", 10), height=4, width=30)
+        self.description_entry.grid(row=7, column=1, padx=10, pady=5, sticky="we")
+
         button_frame = ttk.Frame(card_frame)
-        button_frame.grid(row=7, column=0, columnspan=2, pady=20)
+        button_frame.grid(row=8, column=0, columnspan=2, pady=20)
 
         submit_button = ttk.Button(button_frame, text="Enviar", command=self.registrar_elemento, style="Submit.TButton")
         submit_button.grid(row=0, column=0, padx=10, sticky="we")
@@ -71,9 +77,10 @@ class RegistroVentana(tk.Toplevel):
         code = self.code_entry.get()
         quantity = self.quantity_entry.get()
         category = self.category_combobox.get()
+        description = self.description_entry.get("1.0", "end-1c")  # Obtiene el texto de la descripción
 
         # Verifica si todos los campos están completos
-        if not name or not code or not quantity or not category:
+        if not name or not code or not quantity or not category or not description:
             messagebox.showerror("Error", "Por favor complete todos los campos.")
             return
 
@@ -83,7 +90,8 @@ class RegistroVentana(tk.Toplevel):
                 cursor = connection.cursor()
 
                 # Aquí ejecutas la inserción en la base de datos
-                cursor.execute("INSERT INTO inventario (nombre, codigo, cantidad, categoria) VALUES (%s, %s, %s, %s)", (name, code, quantity, category))
+                cursor.execute("INSERT INTO inventario (nombre, codigo, cantidad, categoria, descripcion) VALUES (%s, %s, %s, %s, %s)",
+                               (name, code, quantity, category, description))
 
                 connection.commit()
 
@@ -94,6 +102,7 @@ class RegistroVentana(tk.Toplevel):
                 self.code_entry.delete(0, tk.END)
                 self.quantity_var.set("")
                 self.category_combobox.set("Seleccione la categoria")
+                self.description_entry.delete("1.0", tk.END)  # Borra el contenido de la descripción
             except Exception as e:
                 print("Error al registrar elemento:", e)
                 messagebox.showerror("Error", "Error al registrar elemento.")
