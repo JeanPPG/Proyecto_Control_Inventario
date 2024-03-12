@@ -54,6 +54,12 @@ class RegistroVentana(tk.Toplevel):
         self.category_combobox.grid(row=6, column=1, padx=10, pady=5, sticky="we")
         self.category_combobox.set("Seleccione la categoria")
 
+        label_description = ttk.Label(card_frame, text="Descripcion:", font=("Arial", 10))
+        label_description.grid(row=7, column=0, sticky="w", padx=10)
+
+        self.description_entry = ttk.Entry(card_frame, font=("Arial", 10))
+        self.description_entry.grid(row=7, column=1, padx=10, pady=5, sticky="we")
+        
         button_frame = ttk.Frame(card_frame)
         button_frame.grid(row=7, column=0, columnspan=2, pady=20)
 
@@ -71,6 +77,8 @@ class RegistroVentana(tk.Toplevel):
         code = self.code_entry.get()
         quantity = self.quantity_entry.get()
         category = self.category_combobox.get()
+        description = self.description_entry.get()
+
 
         # Verifica si todos los campos están completos
         if not name or not code or not quantity or not category:
@@ -83,7 +91,7 @@ class RegistroVentana(tk.Toplevel):
                 cursor = connection.cursor()
 
                 # Aquí ejecutas la inserción en la base de datos
-                cursor.execute("INSERT INTO inventario (nombre, codigo, cantidad, categoria) VALUES (%s, %s, %s, %s)", (name, code, quantity, category))
+                cursor.execute("INSERT INTO inventario (nombre, codigo, cantidad, categoria, descripcion) VALUES (%s, %s, %s, %s, %s)", (name, code, quantity, category,description))
 
                 connection.commit()
 
@@ -94,6 +102,8 @@ class RegistroVentana(tk.Toplevel):
                 self.code_entry.delete(0, tk.END)
                 self.quantity_var.set("")
                 self.category_combobox.set("Seleccione la categoria")
+                self.description_entry.delete(0,tk.END)
+
             except Exception as e:
                 print("Error al registrar elemento:", e)
                 messagebox.showerror("Error", "Error al registrar elemento.")
