@@ -52,6 +52,12 @@ class ActualizacionVentana(tk.Toplevel):
         self.category_combobox = ttk.Combobox(card_frame, values=["Químicos", "Equipos", "Glassware", "Consumibles"], font=("Arial", 10), state="readonly")
         self.category_combobox.grid(row=6, column=1, padx=10, pady=5, sticky="we")
 
+        label_description = ttk.Label(card_frame, text="Descripcion:", font=("Arial", 10))
+        label_description.grid(row=7, column=0, sticky="w", padx=10)
+        self.description_entry = ttk.Entry(card_frame, font=("Arial", 10), state="readonly")
+        self.description_entry.grid(row=7, column=1, padx=10, pady=5, sticky="we")
+
+        
         # Botones de actualización y eliminación
         button_frame = ttk.Frame(card_frame)
         button_frame.grid(row=7, column=0, columnspan=2, pady=20)
@@ -69,6 +75,7 @@ class ActualizacionVentana(tk.Toplevel):
         self.treeview.heading("Código", text="Código")
         self.treeview.heading("Cantidad", text="Cantidad")
         self.treeview.heading("Categoría", text="Categoría")
+        self.treeview.heading("Descripcion", text="Descripcion")
         self.treeview.bind("<ButtonRelease-1>", self.seleccionar_elemento)
         self.treeview.pack(fill="both", expand=True)
     def load_data(self):
@@ -77,7 +84,7 @@ class ActualizacionVentana(tk.Toplevel):
         if connection:
             try:
                 cursor = connection.cursor()
-                cursor.execute("SELECT id, nombre, codigo, cantidad, categoria FROM inventario")
+                cursor.execute("SELECT id, nombre, codigo, cantidad, categoria, descripcion FROM inventario")
                 rows = cursor.fetchall()
                 for row in rows:
                     self.treeview.insert("", "end", values=row)
@@ -95,16 +102,18 @@ class ActualizacionVentana(tk.Toplevel):
             self.code_entry.config(state="normal")
             self.quantity_entry.config(state="normal")
             self.category_combobox.config(state="normal")
+            self.description_entry.config(state = "normal")
             self.id_entry.delete(0, tk.END)
             self.name_entry.delete(0, tk.END)
             self.code_entry.delete(0, tk.END)
             self.quantity_entry.delete(0, tk.END)
+            self.description_entry.delete(0, tk.END)
             self.id_entry.insert(0, item_values[0])
             self.name_entry.insert(0, item_values[1])
             self.code_entry.insert(0, item_values[2])
             self.quantity_entry.insert(0, item_values[3])
             self.category_combobox.set(item_values[4])
-        
+            self.description_entry.insert(0, item_values[0])
 
     def actualizar_producto(self):
         id = self.id_entry.get()
@@ -112,6 +121,7 @@ class ActualizacionVentana(tk.Toplevel):
         code = self.code_entry.get()
         quantity = self.quantity_entry.get()
         category = self.category_combobox.get()
+        description = self.description_entry.get()
 
         if not id or not name or not code or not quantity or not category:
             messagebox.showerror("Error", "Por favor complete todos los campos.")
@@ -121,7 +131,7 @@ class ActualizacionVentana(tk.Toplevel):
         if connection:
             try:
                 cursor = connection.cursor()
-                cursor.execute("UPDATE inventario SET nombre=%s, codigo=%s, cantidad=%s, categoria=%s WHERE id=%s", (name, code, quantity, category, id))
+                cursor.execute("UPDATE inventario SET nombre=%s, codigo=%s, cantidad=%s, categoria=%s , descripcion=%s WHERE id=%s", (name, code, quantity, category, description,id))
                 connection.commit()
                 messagebox.showinfo("Actualización", "Producto actualizado correctamente.")
                 self.load_data()
@@ -164,11 +174,13 @@ class ActualizacionVentana(tk.Toplevel):
         self.code_entry.config(state="readonly")
         self.quantity_entry.config(state="readonly")
         self.category_combobox.config(state="readonly")
+        self.description_entry.config(state= "readonly")
         self.id_entry.delete(0, tk.END)
         self.name_entry.delete(0, tk.END)
         self.code_entry.delete(0, tk.END)
         self.quantity_entry.delete(0, tk.END)
         self.category_combobox.set("")
+        self.description_entry.delete(0, tk.END)
         
      def on_close(self):
         self.parent.deiconify()
