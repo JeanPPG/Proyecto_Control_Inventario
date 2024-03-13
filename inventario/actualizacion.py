@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from conexionDB import database
+import datetime
 
 class ActualizacionVentana(tk.Toplevel):
     def __init__(self, parent):
@@ -34,28 +35,28 @@ class ActualizacionVentana(tk.Toplevel):
 
         label_name = ttk.Label(card_frame, text="Nombre:", font=("Arial", 10))
         label_name.grid(row=3, column=0, sticky="w", padx=10)
-        self.name_entry = ttk.Entry(card_frame, font=("Arial", 10), state="readonly")
+        self.name_entry = ttk.Entry(card_frame, font=("Arial", 10))
         self.name_entry.grid(row=3, column=1, padx=10, pady=5, sticky="we")
 
         label_code = ttk.Label(card_frame, text="Código:", font=("Arial", 10))
         label_code.grid(row=4, column=0, sticky="w", padx=10)
-        self.code_entry = ttk.Entry(card_frame, font=("Arial", 10), state="readonly")
+        self.code_entry = ttk.Entry(card_frame, font=("Arial", 10))
         self.code_entry.grid(row=4, column=1, padx=10, pady=5, sticky="we")
 
         label_quantity = ttk.Label(card_frame, text="Cantidad:", font=("Arial", 10))
         label_quantity.grid(row=5, column=0, sticky="w", padx=10)
-        self.quantity_entry = ttk.Entry(card_frame, font=("Arial", 10), state="readonly")
+        self.quantity_entry = ttk.Entry(card_frame, font=("Arial", 10))
         self.quantity_entry.grid(row=5, column=1, padx=10, pady=5, sticky="we")
 
         label_category = ttk.Label(card_frame, text="Categoría:", font=("Arial", 10))
         label_category.grid(row=6, column=0, sticky="w", padx=10)
-        self.category_combobox = ttk.Combobox(card_frame, values=["Químicos", "Equipos", "Glassware", "Consumibles"], font=("Arial", 10), state="readonly")
+        self.category_combobox = ttk.Combobox(card_frame, values=["Químicos", "Equipos", "Glassware", "Consumibles"], font=("Arial", 10))
         self.category_combobox.grid(row=6, column=1, padx=10, pady=5, sticky="we")
 
         # Descripción del producto
         label_description = ttk.Label(card_frame, text="Descripción:", font=("Arial", 10))
         label_description.grid(row=7, column=0, sticky="w", padx=10)
-        self.description_entry = tk.Text(card_frame, font=("Arial", 10), height=4, width=30, state="disabled")
+        self.description_entry = tk.Text(card_frame, font=("Arial", 10), height=4, width=30)
         self.description_entry.grid(row=7, column=1, padx=10, pady=5, sticky="we")
 
         # Botones de actualización y eliminación
@@ -85,7 +86,7 @@ class ActualizacionVentana(tk.Toplevel):
         if connection:
             try:
                 cursor = connection.cursor()
-                cursor.execute("SELECT id, nombre, codigo, cantidad, categoria, descripcion FROM inventario")
+                cursor.execute("SELECT id, nombre, codigo, cantidad, categoria, descripcion FROM inventario ORDER BY id")
                 rows = cursor.fetchall()
                 for row in rows:
                     self.treeview.insert("", "end", values=row)
@@ -136,6 +137,10 @@ class ActualizacionVentana(tk.Toplevel):
                 cursor.execute("UPDATE inventario SET nombre=%s, codigo=%s, cantidad=%s, categoria=%s, descripcion=%s WHERE id=%s", (name, code, quantity, category, description, id))
                 connection.commit()
                 messagebox.showinfo("Actualización", "Producto actualizado correctamente.")
+
+                # Registrar la actualización en el seguimiento
+                self.registrar_seguimiento(f"Producto actualizado: {name}")
+
                 self.load_data()
                 self.limpiar_campos()
             except Exception as e:
@@ -157,9 +162,15 @@ class ActualizacionVentana(tk.Toplevel):
             if connection:
                 try:
                     cursor = connection.cursor()
+                    cursor.execute("SELECT nombre FROM inventario WHERE id=%s", (id,))
+                    nombre_producto = cursor.fetchone()[0]
                     cursor.execute("DELETE FROM inventario WHERE id=%s", (id,))
                     connection.commit()
                     messagebox.showinfo("Eliminación", "Producto eliminado correctamente.")
+
+                    # Registrar la eliminación en el seguimiento
+                    self.registrar_seguimiento(f"Producto eliminado: {nombre_producto}")
+
                     self.load_data()
                     self.limpiar_campos()
                 except Exception as e:
@@ -171,12 +182,6 @@ class ActualizacionVentana(tk.Toplevel):
 
     def limpiar_campos(self):
         self.id_entry.config(state="readonly")
-        self.name_entry.config(state="readonly")
-        self.code_entry.config(state="readonly")
-        self.quantity_entry.config(state="readonly")
-        self.category_combobox.config(state="readonly")
-        self.description_entry.config(state="disabled")
-        self.id_entry.delete(0, tk.END)
         self.name_entry.delete(0, tk.END)
         self.code_entry.delete(0, tk.END)
         self.quantity_entry.delete(0, tk.END)
@@ -186,6 +191,20 @@ class ActualizacionVentana(tk.Toplevel):
     def on_close(self):
         self.parent.deiconify()
         self.destroy()
+
+    def registrar_seguimiento(self, detalle):
+        connection = database.connect_to_database()
+        if connection:
+            try:
+                cursor = connection.cursor()
+                fecha_hora_actual = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                cursor.execute("INSERT INTO seguimiento (fecha, evento, detalle) VALUES (%s, %s, %s)", (fecha_hora_actual, "Actualización/Eliminación", detalle))
+                connection.commit()
+            except Exception as e:
+                print("Error al registrar seguimiento:", e)
+            finally:
+                cursor.close()
+                connection.close()
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import re
 from conexionDB import database
+import datetime
 
 class RegistroVentana(tk.Toplevel):
     def __init__(self, parent):
@@ -93,6 +94,13 @@ class RegistroVentana(tk.Toplevel):
                 cursor.execute("INSERT INTO inventario (nombre, codigo, cantidad, categoria, descripcion) VALUES (%s, %s, %s, %s, %s)",
                                (name, code, quantity, category, description))
 
+                # Agregar evento al seguimiento
+                fecha_evento = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                evento = "Registro de Producto"
+                detalle = f"Producto: {name}, Cantidad: {quantity}, Categoría: {category}"
+
+                cursor.execute("INSERT INTO seguimiento (fecha, evento, detalle) VALUES (%s, %s, %s)", (fecha_evento, evento, detalle))
+
                 connection.commit()
 
                 messagebox.showinfo("Registrar", "Registro exitoso!")
@@ -122,3 +130,4 @@ if __name__ == "__main__":
     root.withdraw()  # Oculta la ventana principal temporalmente
     registro_ventana = RegistroVentana(root)
     root.mainloop()
+
