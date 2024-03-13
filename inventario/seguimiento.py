@@ -6,7 +6,7 @@ from conexionDB import database
 class SeguimientoVentana(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Seguimiento de Elementos")
+        self.title("Seguimiento de Inventario")
         self.geometry("800x400")
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -15,10 +15,8 @@ class SeguimientoVentana(tk.Toplevel):
         self.create_widgets()
         self.load_data()
 
-
     def create_widgets(self):
-
-         # Encabezado
+        # Encabezado
         header_frame = ttk.Frame(self)
         header_frame.pack(pady=10)
 
@@ -32,7 +30,7 @@ class SeguimientoVentana(tk.Toplevel):
         description_label = ttk.Label(description_frame, text="Permite un seguimiento completo de la actividad en el inventario, proporcionando un registro histórico detallado.")
         description_label.pack()
 
-         # Crear el Treeview para mostrar el historial de transacciones
+        # Crear el Treeview para mostrar el historial de transacciones
         self.treeview = ttk.Treeview(self, columns=("ID", "Fecha", "Evento", "Detalle"), show="headings")
         self.treeview.heading("ID", text="ID")
         self.treeview.heading("Fecha", text="Fecha")
@@ -40,7 +38,7 @@ class SeguimientoVentana(tk.Toplevel):
         self.treeview.heading("Detalle", text="Detalle")
         self.treeview.pack(fill="both", expand=True)
 
-     def load_data(self):
+    def load_data(self):
         connection = database.connect_to_database()
         if connection:
             try:
@@ -62,10 +60,9 @@ class SeguimientoVentana(tk.Toplevel):
                 cursor.close()
                 connection.close()
 
-
     def on_close(self):
-            self.parent.deiconify()
-            self.destroy()
+        self.parent.deiconify()
+        self.destroy()
 
 if __name__ == "__main__":
     root = tk.Tk()

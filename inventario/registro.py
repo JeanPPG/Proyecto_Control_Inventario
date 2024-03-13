@@ -130,4 +130,3 @@ if __name__ == "__main__":
     root.withdraw()  # Oculta la ventana principal temporalmente
     registro_ventana = RegistroVentana(root)
     root.mainloop()
-

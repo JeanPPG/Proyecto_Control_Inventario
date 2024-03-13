@@ -39,6 +39,9 @@ class ListaVentana(tk.Toplevel):
         # Obtener los datos de la base de datos y cargarlos en el Treeview
         self.load_data()
 
+        # Verificar niveles de stock y generar alertas
+        self.check_stock_levels()
+
     def load_data(self):
         connection = database.connect_to_database()
         if connection:
@@ -104,6 +107,23 @@ class ListaVentana(tk.Toplevel):
     def on_close(self):
         self.parent.deiconify()
         self.destroy()
+
+    def check_stock_levels(self):
+        low_stock_products = []  # Lista para almacenar los productos con bajo stock
+
+        for child in self.treeview.get_children():
+            quantity = int(self.treeview.item(child, "values")[2])  # Obtener la cantidad del producto
+            if quantity <= 10:
+                name = self.treeview.item(child, "values")[0]  # Obtener el nombre del producto
+                low_stock_products.append(name)  # Agregar el nombre del producto a la lista
+
+        if low_stock_products:
+            # Crear un mensaje con todos los productos de bajo stock
+            message = "Los siguientes productos tienen un nivel de stock bajo:\n\n"
+            for product in low_stock_products:
+                message += f"- {product}\n"
+            
+            messagebox.showwarning("Alerta de stock bajo", message)
 
 if __name__ == "__main__":
     root = tk.Tk()
